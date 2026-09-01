@@ -1,7 +1,7 @@
 # Spec 04: Middleware Integration
 
-**Version**: 1.0
-**Date**: 29 Agustus 2026
+**Version**: 1.1 (Updated for shared FeatureExtractor & HTTPRequestParser from Spec 01)
+**Date**: 31 Agustus 2026
 **Related PRD**: FR-3
 
 ---
@@ -114,6 +114,7 @@ import logging
 import requests
 from flask import Request, jsonify
 from config.middleware_config import MIDDLEWARE_CONFIG
+from ..feature_extraction.parser import HTTPRequestParser
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +123,8 @@ class AIGuardMiddleware:
     
     def __init__(self, app, feature_extractor, db_logger):
         self.app = app
-        self.feature_extractor = feature_extractor
+        self.feature_extractor = feature_extractor  # Shared FeatureExtractor from Spec 01
+        self.http_parser = HTTPRequestParser()       # Shared HTTP parser from Spec 01
         self.db_logger = db_logger
         self.config = MIDDLEWARE_CONFIG
         
@@ -138,7 +140,7 @@ class AIGuardMiddleware:
         return False
     
     def extract_request_data(self, request: Request) -> dict:
-        """Extract relevant data from Flask request object."""
+        """Extract relevant data from Flask request object (raw format for inference API)."""
         return {
             "method": request.method,
             "url": request.url,

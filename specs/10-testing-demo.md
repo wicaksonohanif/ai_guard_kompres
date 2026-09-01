@@ -1,7 +1,7 @@
 # Spec 10: Testing & Demo Procedures
 
-**Version**: 1.0
-**Date**: 29 Agustus 2026
+**Version**: 1.1 (Updated unit tests for 32 features from Spec 01)
+**Date**: 31 Agustus 2026
 **Related PRD**: Section 10 (Success Metrics), Section 11 (Risiko & Mitigasi)
 
 ---
@@ -46,7 +46,7 @@ class TestFeatureExtractor(unittest.TestCase):
             'body': ''
         }
         features = self.extractor.extract(request_data)
-        self.assertEqual(len(features), 25)
+        self.assertEqual(len(features), 32)
     
     def test_sqli_detection(self):
         """SQL injection payload should trigger SQL keyword feature."""
@@ -57,8 +57,8 @@ class TestFeatureExtractor(unittest.TestCase):
             'body': ''
         }
         features = self.extractor.extract(request_data)
-        # Check that SQL keyword feature is set
-        self.assertGreaterEqual(features[6], 1)  # payload_has_sql_keywords
+        # Check that SQL keyword feature is set (index 9 in 32 features)
+        self.assertGreaterEqual(features[9], 1)  # payload_has_sql_keywords
     
     def test_xss_detection(self):
         """XSS payload should trigger XSS tag feature."""
@@ -69,7 +69,7 @@ class TestFeatureExtractor(unittest.TestCase):
             'body': ''
         }
         features = self.extractor.extract(request_data)
-        self.assertGreaterEqual(features[7], 1)  # payload_has_xss_tags
+        self.assertGreaterEqual(features[10], 1)  # payload_has_xss_tags (index 10 in 32 features)
     
     def test_crlf_detection(self):
         """CRLF injection should be detected."""
@@ -80,7 +80,7 @@ class TestFeatureExtractor(unittest.TestCase):
             'body': ''
         }
         features = self.extractor.extract(request_data)
-        self.assertGreaterEqual(features[9], 1)  # payload_has_crlf
+        self.assertGreaterEqual(features[12], 1)  # payload_has_crlf (index 12 in 32 features)
     
     def test_entropy_calculation(self):
         """High entropy string should produce higher entropy value."""
@@ -103,9 +103,9 @@ class TestFeatureExtractor(unittest.TestCase):
         self.assertEqual(features1, features2)
     
     def test_get_feature_names(self):
-        """Must return 25 feature names."""
+        """Must return 32 feature names."""
         names = self.extractor.get_feature_names()
-        self.assertEqual(len(names), 25)
+        self.assertEqual(len(names), 32)
         self.assertIn('request_method', names)
         self.assertIn('payload_entropy', names)
 ```

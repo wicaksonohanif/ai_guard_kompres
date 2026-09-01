@@ -1,7 +1,7 @@
 # Spec 05: Database & Logging
 
-**Version**: 1.0
-**Date**: 29 Agustus 2026
+**Version**: 1.1 (Updated feature_count from 25 to 32 per Spec 01)
+**Date**: 31 Agustus 2026
 **Related PRD**: FR-5
 
 ---
@@ -231,7 +231,7 @@ class TrafficLogger:
             attack_class,
             action,
             latency_ms,
-            25,  # feature_count
+            32,  # feature_count (updated from 25 to 32 per Spec 01)
             1 if action == 'block' else 0
         )
         

@@ -1,7 +1,7 @@
 # Spec 08: Attack Simulation Tool
 
-**Version**: 1.0
-**Date**: 29 Agustus 2026
+**Version**: 1.1
+**Date**: 31 Agustus 2026
 **Related PRD**: FR-8
 
 ---

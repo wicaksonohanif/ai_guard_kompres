@@ -1,7 +1,7 @@
 # Spec 06: Admin Dashboard
 
-**Version**: 1.0
-**Date**: 29 Agustus 2026
+**Version**: 1.1 (Updated for 32 features from Spec 01)
+**Date**: 31 Agustus 2026
 **Related PRD**: FR-6
 
 ---

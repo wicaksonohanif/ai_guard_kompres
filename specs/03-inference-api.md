@@ -1,7 +1,7 @@
 # Spec 03: Inference API
 
-**Version**: 1.0
-**Date**: 29 Agustus 2026
+**Version**: 1.1 (Updated for 32 features + shared parser from Spec 01)
+**Date**: 31 Agustus 2026
 **Related PRD**: FR-4
 
 ---
@@ -40,7 +40,7 @@ Klasifikasi satu request HTTP tunggal.
     "label": "anomalous",
     "confidence": 0.97,
     "attack_class": "sql_injection",
-    "features_used": 25,
+    "features_used": 32,
     "processing_time_ms": 3.2
 }
 ```
@@ -52,7 +52,7 @@ Klasifikasi satu request HTTP tunggal.
     "label": "normal",
     "confidence": 0.99,
     "attack_class": null,
-    "features_used": 25,
+    "features_used": 32,
     "processing_time_ms": 2.8
 }
 ```
@@ -171,6 +171,7 @@ class HttpMethod(str, Enum):
     OPTIONS = "OPTIONS"
 
 class SingleRequest(BaseModel):
+    """Raw HTTP request input (same format as CSIC 2010 parsed structure)."""
     method: HttpMethod
     url: str
     headers: dict = {}
@@ -180,7 +181,7 @@ class PredictionResponse(BaseModel):
     label: str = Field(..., description="'normal' atau 'anomalous'")
     confidence: float = Field(..., ge=0.0, le=1.0)
     attack_class: Optional[str] = None
-    features_used: int
+    features_used: int = 32
     processing_time_ms: float
 
 class BatchRequest(BaseModel):
@@ -209,6 +210,7 @@ import json
 
 from .routes import router
 from .schemas import SingleRequest, PredictionResponse
+from ..feature_extraction.parser import HTTPRequestParser
 from ..feature_extraction.extractor import FeatureExtractor
 
 @asynccontextmanager
@@ -221,8 +223,9 @@ async def lifespan(app: FastAPI):
     with open("models/xgboost_metadata.json") as f:
         app.state.metadata = json.load(f)
     
-    # Initialize feature extractor
+    # Initialize feature extractor & parser (shared from Spec 01)
     app.state.feature_extractor = FeatureExtractor()
+    app.state.http_parser = HTTPRequestParser()
     
     app.state.start_time = time.time()
     yield
@@ -252,13 +255,22 @@ async def health_check():
 async def predict(request: SingleRequest):
     start = time.time()
     
-    # Extract features
-    features = app.state.feature_extractor.extract({
-        "method": request.method,
-        "url": request.url,
-        "headers": request.headers,
-        "body": request.body
-    })
+    # Parse raw HTTP request using shared parser (Spec 01)
+    # Input already in structured format, so we pass directly to extractor
+    parsed_request = {
+        'method': request.method.value if hasattr(request.method, 'value') else request.method,
+        'full_url': request.url,
+        'url': request.url,
+        'path': request.url.split('?')[0] if '?' in request.url else request.url,
+        'query_string': request.url.split('?', 1)[1] if '?' in request.url else '',
+        'query_params': {},
+        'headers': {k.lower(): v for k, v in request.headers.items()},
+        'body': request.body,
+        'content_length': len(request.body)
+    }
+    
+    # Extract 32 features using shared FeatureExtractor (Spec 01)
+    features = app.state.feature_extractor.extract(parsed_request)
     
     # Predict
     prediction = app.state.model.predict([features])[0]
