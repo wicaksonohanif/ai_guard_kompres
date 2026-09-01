@@ -56,7 +56,7 @@
 | Komponen | Teknologi |
 |----------|-----------|
 | Backend API | Python 3.10+, FastAPI |
-| Machine Learning | XGBoost, Scikit-learn, PyTorch (LSTM/CNN eksperimen) |
+| Machine Learning | XGBoost, Scikit-learn |
 | Dataset | CSIC 2010 HTTP Dataset |
 | Database | SQLite (prototipe), PostgreSQL (opsional produksi) |
 | Frontend Dashboard | HTML/CSS/JS + Chart.js / Recharts |

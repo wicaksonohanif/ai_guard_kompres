@@ -1,5 +1,5 @@
 # Product Requirements Document (PRD)
-## AI Guard: Embedded Web Security Feature dengan AI-based Traffic Classification
+## CONNEXTS AI | Network Guard: Embedded Web Security Feature dengan AI-based Traffic Classification
 
 **Versi**: 1.0
 **Status**: Draft untuk Kompetisi AI Innovation Kampus
@@ -9,7 +9,7 @@
 
 ## 1. Ringkasan Eksekutif
 
-**AI Guard** adalah fitur keamanan berbasis AI yang tertanam di dalam prototipe website kampus, dirancang untuk mengklasifikasikan traffic HTTP masuk sebagai **normal** atau **anomalous** secara real-time. Sistem ini dilengkapi dengan dashboard monitoring untuk admin dan notifikasi otomatis via Telegram ketika terdeteksi traffic mencurigakan.
+**CONNEXTS AI | Network Guard** adalah fitur keamanan berbasis AI yang tertanam di dalam prototipe website kampus, dirancang untuk mengklasifikasikan traffic HTTP masuk sebagai **normal** atau **anomalous** secara real-time. Sistem ini dilengkapi dengan dashboard monitoring untuk admin dan notifikasi otomatis via Telegram ketika terdeteksi traffic mencurigakan.
 
 Tujuan proyek ini adalah mendemonstrasikan penerapan machine learning untuk deteksi serangan web tingkat aplikasi (application-layer attack detection) dalam bentuk prototipe yang dapat didemonstrasikan secara end-to-end: dari simulasi serangan, deteksi oleh model, hingga notifikasi ke admin.
 
@@ -23,7 +23,7 @@ Website, termasuk website institusi seperti kampus, rentan terhadap serangan ber
 - Tidak memberikan visibilitas real-time yang mudah dipahami admin non-teknis.
 - Tidak memiliki mekanisme notifikasi proaktif ke pengelola sistem.
 
-AI Guard mencoba menjawab celah ini dengan pendekatan machine learning untuk deteksi anomali, dipadukan dengan monitoring dan notifikasi yang actionable.
+CONNEXTS AI mencoba menjawab celah ini dengan pendekatan machine learning dengan model yang ringan untuk deteksi anomali, dipadukan dengan monitoring dan notifikasi yang actionable.
 
 ---
 
@@ -80,7 +80,7 @@ Berdasarkan dataset CSIC 2010 HTTP Dataset, sistem difokuskan mendeteksi kelas s
 - Sistem mengekstraksi fitur dari setiap HTTP request masuk (method, panjang URL, jumlah parameter, entropy payload, keyword mencurigakan, karakter spesial, dll).
 - Fungsi ekstraksi fitur harus identik antara pipeline training (dataset CSIC) dan pipeline inference (traffic live) untuk menjaga konsistensi.
 
-### FR-2: Model Klasifikasi (AI Guard Core)
+### FR-2: Model Klasifikasi (CONNEXT)
 - Model utama: **XGBoost**, dilatih pada dataset CSIC 2010 (+ data self-generated dari prototipe).
 - Output: label (`normal` / `anomalous`) beserta confidence score.
 - Model harus dapat dipanggil secara real-time dengan latensi rendah (target < 100ms per request).
@@ -159,7 +159,6 @@ Seluruh komponen dikemas dengan **Docker Compose** untuk kemudahan eksekusi saat
 | **Dataset Utama** | CSIC 2010 HTTP Dataset |
 | **Dataset Tambahan** | Traffic self-generated dari prototipe (normal + simulasi serangan) |
 | **Model Produksi** | XGBoost (akurat, ringan, interpretable, cepat inferensi) |
-| **Eksperimen Komparasi** | LSTM/CNN karakter-level sebagai riset tambahan untuk laporan (bukan untuk deployment) |
 | **Evaluasi** | Precision, Recall, F1-score per kelas serangan; feature importance; uji ketahanan terhadap payload ter-obfuscate |
 
 ---
@@ -201,7 +200,7 @@ Seluruh komponen dikemas dengan **Docker Compose** untuk kemudahan eksekusi saat
 | Tahap | Output |
 |---|---|
 | Minggu 1 | Preprocessing dataset CSIC 2010 + feature extraction pipeline |
-| Minggu 2 | Training & evaluasi model XGBoost + eksperimen LSTM/CNN pembanding |
+| Minggu 2 | Training & evaluasi model XGBoost |
 | Minggu 3 | Bangun prototipe website + middleware integrasi + inference API |
 | Minggu 4 | Dashboard admin + notifikasi Telegram + integrasi Docker Compose |
 | Minggu 5 | Testing end-to-end, simulasi serangan, penyusunan laporan & slide presentasi |
