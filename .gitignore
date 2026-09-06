@@ -7,3 +7,12 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 
+# Auto-generated logs from StubDBLogger (Spec 04) / TrafficLogger (Spec 05)
+data/*.jsonl
+data/*.json
+!data/.gitkeep
+
+# Local archive — historical/redundant docs not tracked in GitHub
+archive/
+!archive/.gitkeep
+
