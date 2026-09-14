@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk ke situs | CONNEXTS Campus Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+  <div class="page">
+
+    <!-- LEFT: form panel -->
+    <div class="panel-form">
+      <div class="form-inner">
+
+        <div class="brand-center">
+          <img class="emblem" src="{{ url_for('static', filename='img/emblem.svg') }}" alt="Lambang CONNEXTS AI Guard">
+        </div>
+
+        <div class="info-box">
+          <h2>Ini pertama kali Anda ke sini?</h2>
+          <ul>
+            <li>Mahasiswa dapat mengakses portal menggunakan akun kampus.</li>
+            <li>Bila belum memiliki akun, silakan lakukan pendaftaran <a href="#">di sini</a>.</li>
+            <li>Setelah masuk, Anda akan melihat daftar layanan untuk semester ini.</li>
+            <li>Pastikan data akun sudah sesuai sebelum melanjutkan.</li>
+            <li>Ada kendala akun? Hubungi kontak berikut:</li>
+          </ul>
+          <div class="contact">
+            <span class="icon">&#9742;</span>
+            <a href="#">0812-0000-0000</a>
+          </div>
+        </div>
+
+        <form class="login-form" method="post" action="{{ url_for('login') }}" autocomplete="off">
+          {% if error %}
+          <div class="login-error" role="alert">{{ error }}</div>
+          {% endif %}
+
+          <div class="input-group">
+            <span class="icon">&#128100;</span>
+            <input type="text" name="username" placeholder="Nama pengguna atau surel" value="{{ username or '' }}" required>
+          </div>
+
+          <div class="input-group">
+            <span class="icon">&#128273;</span>
+            <input type="password" name="password" id="password" placeholder="Kata sandi" required>
+            <button type="button" class="toggle-pass" id="togglePass" aria-label="Tampilkan kata sandi">&#128065;</button>
+          </div>
+
+          <a class="forgot" href="#">Lupa nama pengguna dan kata sandi?</a>
+
+          <button type="submit" class="btn-submit">Masuk</button>
+        </form>
+
+        <footer>
+          Copyright &copy; 2026 CONNEXTS AI | Network Guard. Prototipe demo — bukan sistem produksi.
+        </footer>
+      </div>
+    </div>
+
+    <!-- RIGHT: hero panel -->
+    <div class="panel-hero" aria-hidden="true" style="background-image: url('{{ url_for('static', filename='img/campus-illustration.svg') }}');">
+      <div class="hero-overlay">
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const toggle = document.getElementById('togglePass');
+    const pass = document.getElementById('password');
+    toggle.addEventListener('click', () => {
+      pass.type = pass.type === 'password' ? 'text' : 'password';
+    });
+  </script>
+</body>
+</html>

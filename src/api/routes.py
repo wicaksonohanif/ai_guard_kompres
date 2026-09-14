@@ -49,29 +49,40 @@ def _predict_single(request: SingleRequest, app_state) -> PredictionResponse:
     feature_dict = dict(zip(FeatureExtractor.FEATURE_NAMES, features))
     heuristic_attack = infer_attack_class(feature_dict)
 
+    print("FEATURE LOGIN:", feature_dict)
+    print("HEURISTIC ATTACK:", heuristic_attack)
+
     if anomalous_prob >= threshold:
-        # Guard rail: model dilatih pada CSIC 2010 (tienda1) sehingga request GET benign
-        # sederhana (mis. /home tanpa body, query, atau signature apapun) bisa terkena
-        # false positive karena rasio karakter. Jika seluruh 6 attack signatures adalah 0,
-        # tidak ada encoded characters, tidak ada body, tidak ada query params, maka
-        # request dipastikan benign/normal.
-        is_clean_benign = (
-            heuristic_attack == "unknown_anomaly"
-            and feature_dict.get("encoded_char_count", 0) == 0
-            and feature_dict.get("body_length", 0) == 0
-            and feature_dict.get("query_string_length", 0) == 0
-            and feature_dict.get("num_params", 0) == 0
-            and feature_dict.get("content_length_mismatch", 0) == 0
-            and feature_dict.get("non_printable_count", 0) == 0
+
+        # Indikator serangan yang jelas
+        attack_indicators = [
+            "sql_keyword_count",
+            "xss_keyword_count",
+            "path_traversal_count",
+            "crlf_injection_count",
+            "cmd_injection_count",
+            "file_inclusion_count",
+            "non_printable_count",
+        ]
+
+        # Cek apakah ada signature serangan
+        has_attack_signature = any(
+            feature_dict.get(indicator, 0) > 0
+            for indicator in attack_indicators
         )
-        if is_clean_benign:
+
+        # Jika tidak ada signature serangan,
+        # anggap request sebagai normal
+        if not has_attack_signature:
             label = "normal"
             confidence = 0.99
             attack_class = None
+
         else:
             label = "anomalous"
             confidence = round(float(anomalous_prob), 4)
             attack_class = heuristic_attack
+
     else:
         label = "normal"
         confidence = round(float(probabilities[0]), 4)

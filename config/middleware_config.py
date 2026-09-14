@@ -27,7 +27,7 @@ MIDDLEWARE_CONFIG = {
     "block_threshold": 0.7,
 
     # Timeout call ke inference API (ms)
-    "inference_timeout_ms": 100,
+    "inference_timeout_ms": 5000,
 
     # Fallback jika inference API down
     "fallback_mode": "allow",  # Options: "allow", "deny"
@@ -39,7 +39,9 @@ MIDDLEWARE_CONFIG = {
     "skip_paths": [
         "/health",
         "/dashboard/api/metrics",
-        "/admin/*"
+        "/admin/*",
+        "/static/*",   # Addendum: aset statis (css/js) tidak perlu discan AI Guard
+        "/logout",     # Addendum: logout murni session-clear, tidak ada payload berbahaya
     ],
 
     # Rate limit untuk inference calls (per detik)
