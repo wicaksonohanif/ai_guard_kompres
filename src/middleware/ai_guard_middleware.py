@@ -21,9 +21,10 @@ logger = logging.getLogger(__name__)
 class AIGuardMiddleware:
     """Middleware untuk menangkap semua incoming request."""
 
-    def __init__(self, app, db_logger):
+    def __init__(self, app, db_logger, notifier=None):
         self.app = app
         self.db_logger = db_logger
+        self.notifier = notifier
         self.config = MIDDLEWARE_CONFIG
 
     # ------------------------------------------------------------------
@@ -50,6 +51,7 @@ class AIGuardMiddleware:
             "url": request.url,
             "headers": dict(request.headers),
             "body": request.get_data(as_text=True) if request.is_json or request.form else "",
+            "source_ip": request.headers.get("X-Forwarded-For", request.remote_addr),
         }
 
     # ------------------------------------------------------------------
@@ -110,7 +112,12 @@ class AIGuardMiddleware:
     # ------------------------------------------------------------------
     def process_request(self, request: Request):
         """Main middleware logic executed on every request."""
-        # Skip certain paths
+
+        # Jangan periksa saat hanya membuka halaman website
+        if request.method == "GET" and request.path in ["/", "/login"]:
+            return None
+
+        # Skip path tertentu
         if self.should_skip(request.path):
             return None
 
@@ -124,6 +131,8 @@ class AIGuardMiddleware:
         # Classify
         result = self.classify_request(request_data)
 
+        print("HASIL MODEL AI:", result)
+
         # Get label & confidence
         label = result.get("label", "normal")
         confidence = result.get("confidence", 0.0)
@@ -131,8 +140,8 @@ class AIGuardMiddleware:
         # Apply policy
         action = self.apply_policy(label, confidence)
 
-        # Log to database (or stub)
-        self.db_logger.log_request(
+        # Log to database
+        traffic_log_id = self.db_logger.log_request(
             request=request_data,
             label=label,
             confidence=confidence,
@@ -141,5 +150,32 @@ class AIGuardMiddleware:
             attack_class=result.get("attack_class"),
         )
 
-        # Return action for decision
+        # Notifikasi Telegram — hanya untuk traffic anomalous & di-block (Spec 07:
+        # notify_on_block_only=True secara default, flag hanya dicatat di traffic_logs)
+        if self.notifier is not None and label == "anomalous" and action == "block":
+            try:
+                sent, message = self.notifier.notify(
+                    label=label,
+                    confidence=confidence,
+                    attack_class=result.get("attack_class"),
+                    source_ip=request_data.get("source_ip"),
+                    url=request_data.get("url"),
+                    method=request_data.get("method"),
+                    action=action,
+                )
+                if message and hasattr(self.db_logger, "log_notification"):
+                    self.db_logger.log_notification(
+                        traffic_log_id=traffic_log_id,
+                        status="sent" if sent else "aggregated",
+                        message_preview=message,
+                    )
+            except Exception as e:
+                logger.error(f"Notification error: {e}")
+                if hasattr(self.db_logger, "log_notification"):
+                    self.db_logger.log_notification(
+                        traffic_log_id=traffic_log_id,
+                        status="failed",
+                        error_message=str(e),
+                    )
+
         return action
