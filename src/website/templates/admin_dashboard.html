@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Monitor | CONNEXTS Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <style>
+    :root { --bg:#fff; --card:#fff; --allow:#16a34a; --flag:#f59e0b; --block:#dc2626; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#12131a; --card:#1b1d27; --text-dark:#e8e9ee; --text-muted:#9aa0ae; --border:#2b2e3b; --sidebar-bg:#12131a; --active-bg:#26294a; --blue-link:#8fa4ff; }
+    }
+    body { background: var(--bg); }
+    .main { max-width: none; }
+    .head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+    .head h1 { margin:0; }
+    .ctrl { display:flex; gap:10px; align-items:center; }
+    .ctrl select, .ctrl button { background:var(--card); color:var(--text-dark); border:1px solid var(--border); border-radius:6px; padding:7px 12px; font-size:13px; cursor:pointer; }
+    .live { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted); }
+    .dot { width:9px; height:9px; border-radius:50%; background:var(--allow); animation:pulse 1.4s infinite; }
+    .live.off .dot { background:var(--text-muted); animation:none; }
+    .live.err .dot { background:var(--block); animation:none; }
+    @keyframes pulse { 50% { opacity:.3; } }
+    .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+    .kpi small { color:var(--text-muted); font-size:12px; }
+    .kpi b { display:block; font-size:26px; margin-top:4px; }
+    .grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:16px; }
+    @media (max-width:1000px) { .grid { grid-template-columns:1fr; } }
+    .card h3 { margin:0 0 12px; font-size:14px; }
+    .legend { display:flex; gap:14px; font-size:12px; color:var(--text-muted); margin-bottom:8px; }
+    .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; }
+    svg#chart { width:100%; height:150px; display:block; }
+    ul.rank { list-style:none; margin:0 0 18px; padding:0; font-size:13px; }
+    ul.rank li { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border); gap:8px; }
+    ul.rank span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .muted { color:var(--text-muted); }
+    .scroll { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:12.5px; }
+    th { text-align:left; color:var(--text-muted); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--border); }
+    td { padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap; font-family:ui-monospace,Consolas,monospace; }
+    .pill { padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; color:#fff; font-family:inherit; }
+    .pill.allow { background:var(--allow); } .pill.flag { background:var(--flag); } .pill.block { background:var(--block); }
+    tr.row-block td { background:rgba(220,38,38,.08); }
+    #warn { display:none; background:#fef3c7; color:#92400e; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><div class="brand-mark">CX</div></div>
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('admin.index') }}" class="nav-item active"><span class="nav-icon">&#128225;</span> Traffic Monitor</a>
+        <a href="{{ url_for('logout') }}" class="nav-item"><span class="nav-icon">&#10140;</span> Log out</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="head">
+        <h1>Traffic Monitor</h1>
+        <div class="ctrl">
+          <div class="live" id="live"><span class="dot"></span><span id="liveText">Live</span></div>
+          <select id="win">
+            <option value="60">1 menit</option>
+            <option value="300" selected>5 menit</option>
+            <option value="900">15 menit</option>
+            <option value="3600">1 jam</option>
+          </select>
+          <button id="pause">Jeda</button>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="card kpi"><small>Total request</small><b id="k-total">0</b></div>
+        <div class="card kpi"><small>Request / detik</small><b id="k-rps">0</b></div>
+        <div class="card kpi"><small>Serangan terdeteksi</small><b id="k-attacks" style="color:var(--block)">0</b></div>
+        <div class="card kpi"><small>Diblokir</small><b id="k-block" style="color:var(--block)">0</b></div>
+        <div class="card kpi"><small>Di-flag</small><b id="k-flag" style="color:var(--flag)">0</b></div>
+        <div class="card kpi"><small>IP unik</small><b id="k-ips">0</b></div>
+        <div class="card kpi"><small>Block rate</small><b id="k-rate">0%</b></div>
+        <div class="card kpi"><small>Latensi AI (rata2)</small><b id="k-lat">0 ms</b></div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Request per waktu</h3>
+          <div class="legend">
+            <span><i style="background:var(--allow)"></i>Allow</span>
+            <span><i style="background:var(--flag)"></i>Flag</span>
+            <span><i style="background:var(--block)"></i>Block</span>
+            <span style="margin-left:auto">maks per bar: <b id="ymax">0</b></span>
+          </div>
+          <svg id="chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="card">
+          <h3>Top IP sumber</h3><ul class="rank" id="l-ips"></ul>
+          <h3>Top path</h3><ul class="rank" id="l-paths"></ul>
+          <h3>Kelas serangan</h3><ul class="rank" id="l-att" style="margin:0"></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Request terbaru</h3>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Waktu</th><th>IP</th><th>Metode</th><th>Path</th><th>Deteksi</th><th>Jenis Serangan</th><th>Severity</th><th>Keterangan</th><th>Aksi</th><th>Conf</th></tr></thead>
+            <tbody id="feed"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Percobaan login <span class="muted" id="l-sum" style="font-weight:400"></span></h3>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Waktu</th><th>Username</th><th>IP</th><th>Hasil Login</th><th>Deteksi Keamanan</th><th>Jenis Serangan</th><th>Severity</th></tr></thead>
+            <tbody id="logins"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const COL = { allow: 'var(--allow)', flag: 'var(--flag)', block: 'var(--block)' };
+    const esc = s => String(s ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let paused = false, timer;
+
+    function chart(b) {
+      const W = 600, H = 150, bw = W / b.length;
+      const max = Math.max(1, ...b.map(x => x.allow + x.flag + x.block));
+      let s = '';
+      b.forEach((x, i) => {
+        let y = H;
+        for (const k of ['allow', 'flag', 'block']) {
+          const h = x[k] / max * (H - 4);
+          if (h > 0) { y -= h; s += `<rect x="${i * bw + 1}" y="${y}" width="${bw - 2}" height="${h}" fill="${COL[k]}"/>`; }
+        }
+      });
+      $('chart').innerHTML = s;
+      $('ymax').textContent = max;
+    }
+
+    const fmt = t => new Date(t * 1000).toLocaleTimeString('id-ID');
+    const rank = (id, rows) => $(id).innerHTML = rows.length
+      ? rows.map(r => `<li><span title="${esc(r[0])}">${esc(r[0])}</span><b>${r[1]}</b></li>`).join('')
+      : '<li class="muted">Belum ada data</li>';
+
+    function render(d) {
+      $('k-total').textContent = d.total.toLocaleString('id-ID');
+      $('k-rps').textContent = d.rps;
+      $('k-attacks').textContent = d.attacks_detected;
+      $('k-block').textContent = d.block;
+      $('k-flag').textContent = d.flag;
+      $('k-ips').textContent = d.unique_ips;
+      $('k-rate').textContent = d.block_rate + '%';
+      $('k-lat').textContent = d.avg_lat + ' ms';
+      chart(d.buckets);
+      rank('l-ips', d.top_ips); rank('l-paths', d.top_paths); rank('l-att', d.attacks);
+      $('feed').innerHTML = d.recent.length ? d.recent.map(r => `
+        <tr class="row-${r.action}"><td>${fmt(r.t)}</td><td>${esc(r.ip)}</td><td>${esc(r.method)}</td>
+        <td>${esc(r.path)}</td>
+        <td>${esc(r.detection)}</td><td>${esc(r.attack_label)}</td><td>${esc(r.severity)}</td><td>${esc(r.reason)}</td>
+        <td><span class="pill ${r.action}">${r.action}</span></td><td>${esc(r.conf)}</td></tr>`).join('')
+        : '<tr><td colspan="10" class="muted">Belum ada traffic pada rentang ini</td></tr>';
+      $('l-sum').textContent = `· ${d.login_ok} berhasil, ${d.login_fail} gagal dalam rentang ini`;
+      $('logins').innerHTML = d.logins.length ? d.logins.map(l => `
+        <tr><td>${fmt(l.t)}</td><td>${esc(l.username)}</td><td>${esc(l.ip)}</td>
+        <td><span class="pill ${l.result === 'success' ? 'allow' : 'flag'}">${esc(l.result)}</span></td>
+        <td>${esc(l.detection)}</td><td>${esc(l.attack_label)}</td><td>${esc(l.severity)}</td></tr>`).join('')
+        : '<tr><td colspan="7" class="muted">Belum ada percobaan login</td></tr>';
+    }
+
+    function status(cls, text) { $('live').className = 'live ' + cls; $('liveText').textContent = text; }
+
+    async function tick() {
+      try {
+        const r = await fetch('/admin/api/stats?window=' + $('win').value, { credentials: 'same-origin' });
+        if (r.status === 401) { location.href = '/login'; return; }
+        if (!r.ok) throw new Error((await r.json()).error || r.status);
+        render(await r.json());
+        status('', 'Live · ' + new Date().toLocaleTimeString('id-ID'));
+      } catch (e) { status('err', 'Gagal memuat: ' + e.message); }
+    }
+
+    function start() { clearInterval(timer); tick(); timer = setInterval(tick, 2000); }
+    $('win').addEventListener('change', start);
+    $('pause').addEventListener('click', () => {
+      paused = !paused;
+      $('pause').textContent = paused ? 'Lanjutkan' : 'Jeda';
+      if (paused) { clearInterval(timer); status('off', 'Dijeda'); } else start();
+    });
+    start();
+  </script>
+</body>
+</html>

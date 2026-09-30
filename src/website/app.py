@@ -30,6 +30,7 @@ from src.database.logger import TrafficLogger
 from src.notifier.telegram_bot import TelegramNotifier
 from src.notifier.aggregator import NotificationAggregator
 from src.website.auth import authenticate
+from src.website.admin import admin_bp, check_admin
 
 
 def login_required(view):
@@ -90,6 +91,9 @@ def create_app():
             response.headers["X-AI-Guard"] = action
         return response
 
+    # ----- Dashboard admin (monitor traffic real-time) ----- #
+    app.register_blueprint(admin_bp)
+
     # ----- Endpoint dummy ----- #
 
     @app.route("/home")
@@ -103,12 +107,24 @@ def create_app():
 
         username = request.form.get("username", "")
         password = request.form.get("password", "")
+
+        # Satu halaman login untuk semua: kalau kredensial = akun admin, masuk ke dashboard admin.
+        if check_admin(username, password):
+            session.clear()
+            session["is_admin"] = True
+            return redirect(url_for("admin.index"))
+
         source_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
 
         outcome = authenticate(username, password)
 
         # Setiap percobaan login dicatat (Spec 05 target #8)
-        db_logger.log_login_attempt(username=username, source_ip=source_ip, result=outcome.result)
+        db_logger.log_login_attempt(
+            username=username,
+            source_ip=source_ip,
+            result=outcome.result,
+            traffic_log_id=getattr(g, "ai_guard_traffic_log_id", None),
+        )
 
         if outcome.result == "invalid_username":
             return render_template("login.html", error="Username tidak ditemukan.", username=username), 401

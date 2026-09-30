@@ -150,6 +150,16 @@ class AIGuardMiddleware:
             attack_class=result.get("attack_class"),
         )
 
+        # Simpan ID traffic log agar route login dapat menghubungkan
+        # hasil autentikasi (success/invalid_*) dengan hasil security detection
+        # pada request yang sama. Ini membuat dashboard dapat membedakan
+        # "invalid_username" (hasil login) dari "xss/sql_injection/etc." (serangan).
+        try:
+            from flask import g
+            g.ai_guard_traffic_log_id = traffic_log_id
+        except RuntimeError:
+            pass
+
         # Notifikasi Telegram — hanya untuk traffic anomalous & di-block (Spec 07:
         # notify_on_block_only=True secara default, flag hanya dicatat di traffic_logs)
         if self.notifier is not None and label == "anomalous" and action == "block":
