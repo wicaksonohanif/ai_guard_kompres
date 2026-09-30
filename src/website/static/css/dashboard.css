@@ -1,0 +1,219 @@
+:root {
+  --purple: #4b2e83;
+  --blue-link: #2952e3;
+  --text-dark: #1c1c28;
+  --text-muted: #6b7280;
+  --border: #e3e6ea;
+  --sidebar-bg: #ffffff;
+  --active-bg: #eef1ff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--text-dark);
+  background: #fff;
+}
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar {
+  width: 240px;
+  flex: none;
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+}
+
+.sidebar-brand {
+  margin-bottom: 24px;
+  padding-left: 4px;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--purple);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text-dark);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.nav-item:hover {
+  background: #f4f5f7;
+}
+
+.nav-item.active {
+  background: var(--active-bg);
+  color: var(--blue-link);
+  font-weight: 600;
+}
+
+.nav-icon {
+  width: 18px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* ---------- MAIN ---------- */
+.main {
+  flex: 1;
+  padding: 28px 40px;
+  max-width: 980px;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.main h1 {
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+
+.main h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 10px;
+}
+
+.dropdown {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 14px;
+  height: 44px;
+  margin-bottom: 40px;
+}
+
+.search-box .icon {
+  opacity: 0.5;
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+}
+
+.empty-state {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dark);
+  font-size: 14px;
+  margin-bottom: 60px;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+footer p {
+  margin: 0 0 12px;
+}
+
+.contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-list a {
+  color: var(--blue-link);
+  text-decoration: none;
+}
+
+.contact-list .icon {
+  opacity: 0.6;
+  margin-right: 6px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 720px) {
+  .shell { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .main { padding: 20px; }
+}
+
+/* ---------- STUDENT BAR (Spec 05 addendum) ---------- */
+.student-bar {
+  font-size: 12px;
+  color: #5f6368;
+  margin: 4px 0 16px;
+}
+.student-bar a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+.student-bar a:hover {
+  text-decoration: underline;
+}

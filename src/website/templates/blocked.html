@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk ke situs | CONNEXTS Campus Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+  <!--
+    HALAMAN DECOY (Spec 04/05 addendum): ditampilkan setiap kali AI Guard
+    men-set action="block" pada sebuah request. Sengaja dibuat identik
+    secara visual dengan login.html asli, tapi SELURUH interaksi
+    (ketik, klik, submit) tidak berefek apa pun. Tujuannya supaya pihak
+    yang melakukan percobaan serangan tidak mendapat sinyal jelas bahwa
+    request-nya sudah terdeteksi & diblokir (tidak ada pesan error, tidak
+    ada redirect, status HTTP tetap 200) — request beneran tetap
+    tercatat lengkap di traffic_logs & memicu notifikasi Telegram di sisi
+    server, hanya saja tidak terlihat dari halaman ini.
+  -->
+  <div class="page">
+
+    <!-- LEFT: form panel (non-fungsional) -->
+    <div class="panel-form">
+      <div class="form-inner">
+
+        <div class="brand-center">
+          <img class="emblem" src="{{ url_for('static', filename='img/emblem.svg') }}" alt="Lambang CONNEXTS AI Guard">
+        </div>
+
+        <div class="info-box">
+          <h2>Ini pertama kali Anda ke sini?</h2>
+          <ul>
+            <li>Mahasiswa dapat mengakses portal menggunakan akun kampus.</li>
+            <li>Bila belum memiliki akun, silakan lakukan pendaftaran <a href="javascript:void(0)">di sini</a>.</li>
+            <li>Setelah masuk, Anda akan melihat daftar layanan untuk semester ini.</li>
+            <li>Pastikan data akun sudah sesuai sebelum melanjutkan.</li>
+            <li>Ada kendala akun? Hubungi kontak berikut:</li>
+          </ul>
+          <div class="contact">
+            <span class="icon">&#9742;</span>
+            <a href="javascript:void(0)">0812-0000-0000</a>
+          </div>
+        </div>
+
+        <!-- form tanpa action/method nyata — submit tidak mengirim apa pun -->
+        <form class="login-form" onsubmit="return false;" autocomplete="off">
+          <div class="input-group">
+            <span class="icon">&#128100;</span>
+            <input type="text" name="username" placeholder="Nama pengguna atau surel" readonly>
+          </div>
+
+          <div class="input-group">
+            <span class="icon">&#128273;</span>
+            <input type="password" name="password" placeholder="Kata sandi" readonly>
+            <button type="button" class="toggle-pass" aria-label="Tampilkan kata sandi" onclick="return false;">&#128065;</button>
+          </div>
+
+          <a class="forgot" href="javascript:void(0)">Lupa nama pengguna dan kata sandi?</a>
+
+          <button type="submit" class="btn-submit" onclick="return false;">Masuk</button>
+        </form>
+
+        <footer>
+          Copyright &copy; 2026 CONNEXTS AI | Network Guard. Prototipe demo — bukan sistem produksi.
+        </footer>
+      </div>
+    </div>
+
+    <!-- RIGHT: hero panel -->
+    <div class="panel-hero" aria-hidden="true" style="background-image: url('{{ url_for('static', filename='img/campus-illustration.svg') }}');">
+      <div class="hero-overlay">
+        <div class="hero-caption">
+          <span class="tag">Prototipe Keamanan Kampus</span>
+          <h1>Traffic dipantau,<br>akses tetap mulus.</h1>
+          <p>Setiap permintaan yang masuk ke portal ini diperiksa secara real-time oleh AI Guard sebelum sampai ke aplikasi.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- tidak ada script fungsional lain — halaman ini memang sengaja "beku" -->
+</body>
+</html>

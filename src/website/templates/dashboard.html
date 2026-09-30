@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My courses | CONNEXTS Campus Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+  <div class="shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">CX</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item">
+          <span class="nav-icon">&#9635;</span> Dashboard
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="nav-item active">
+          <span class="nav-icon">&#128218;</span> My courses
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">&#128197;</span> Calendar
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="breadcrumb">My courses &rsaquo; Site pages &rsaquo; My courses</div>
+
+      {% if student_name %}
+      <div class="student-bar">
+        Signed in as <strong>{{ student_name }}</strong> &middot; <a href="{{ url_for('logout') }}">Log out</a>
+      </div>
+      {% endif %}
+
+      <h1>My courses</h1>
+      <h2>Course overview</h2>
+
+      <div class="toolbar">
+        <button class="dropdown">&#9660; All</button>
+        <div class="toolbar-right">
+          <button class="dropdown">Sort by course name &#9660;</button>
+          <button class="dropdown">Card &#9660;</button>
+        </div>
+      </div>
+
+      <div class="search-box">
+        <span class="icon">&#128269;</span>
+        <input type="text" placeholder="Search">
+      </div>
+
+      <div class="empty-state">
+        {% if courses %}
+          <!-- kartu course akan dirender di sini kalau ada data -->
+        {% else %}
+          No courses
+        {% endif %}
+      </div>
+
+      <footer>
+        <p>Copyright &copy; 2026 CONNEXTS AI | Network Guard. Prototipe demo &mdash; bukan sistem produksi.</p>
+        <ul class="contact-list">
+          <li><span class="icon">&#127760;</span> <a href="#">CONNEXTS Campus Portal</a></li>
+          <li><span class="icon">&#128241;</span> <a href="#">0812-0000-0000</a></li>
+          <li><span class="icon">&#9993;</span> <a href="#">helpdesk@connexts.demo</a></li>
+        </ul>
+      </footer>
+    </main>
+
+  </div>
+</body>
+</html>

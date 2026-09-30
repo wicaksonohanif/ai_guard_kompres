@@ -1,0 +1,211 @@
+{
+  "model_type": "XGBoost",
+  "version": "1.0.0",
+  "training_date": "2026-09-01",
+  "feature_names": [
+    "url_length",
+    "path_length",
+    "query_string_length",
+    "body_length",
+    "num_headers",
+    "num_params",
+    "avg_param_name_length",
+    "avg_param_value_length",
+    "max_param_value_length",
+    "max_param_name_length",
+    "std_param_value_length",
+    "url_entropy",
+    "body_entropy",
+    "param_value_max_entropy",
+    "digit_ratio",
+    "uppercase_ratio",
+    "special_char_ratio",
+    "alpha_ratio",
+    "whitespace_count",
+    "non_printable_count",
+    "sql_keyword_count",
+    "xss_keyword_count",
+    "path_traversal_count",
+    "crlf_injection_count",
+    "cmd_injection_count",
+    "file_inclusion_count",
+    "encoded_char_count",
+    "method_is_get",
+    "method_is_post",
+    "has_cookie_header",
+    "has_content_type_header",
+    "content_length_mismatch"
+  ],
+  "num_features": 32,
+  "hyperparameters": {
+    "max_depth": 14,
+    "learning_rate": 0.06872210322284811,
+    "n_estimators": 165,
+    "subsample": 0.86986408399478,
+    "colsample_bytree": 0.8101105053100583,
+    "min_child_weight": 2,
+    "gamma": 0.2914596984103026,
+    "reg_alpha": 0.46549033252369604,
+    "reg_lambda": 0.3993646190072678,
+    "scale_pos_weight": 1.0880588102204576,
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "random_state": 42
+  },
+  "baseline_hyperparameters": {
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "max_depth": 6,
+    "learning_rate": 0.1,
+    "n_estimators": 200,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 3,
+    "gamma": 0,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "random_state": 42
+  },
+  "optuna_config": {
+    "n_trials": 50,
+    "cv_folds": 5,
+    "scoring": "f1_weighted",
+    "search_space": {
+      "max_depth": [
+        "int",
+        3,
+        15
+      ],
+      "learning_rate": [
+        "float",
+        0.01,
+        0.3
+      ],
+      "n_estimators": [
+        "int",
+        100,
+        500
+      ],
+      "subsample": [
+        "float",
+        0.5,
+        1.0
+      ],
+      "colsample_bytree": [
+        "float",
+        0.5,
+        1.0
+      ],
+      "min_child_weight": [
+        "int",
+        1,
+        10
+      ],
+      "gamma": [
+        "float",
+        0,
+        5
+      ],
+      "reg_alpha": [
+        "float",
+        0,
+        1
+      ],
+      "reg_lambda": [
+        "float",
+        0,
+        1
+      ],
+      "scale_pos_weight": [
+        "float",
+        0.5,
+        2.0
+      ]
+    }
+  },
+  "dataset_info": {
+    "total_samples": 97065,
+    "train_samples": 77652,
+    "test_samples": 19413,
+    "source_files": [
+      "normalTrafficTraining.txt",
+      "normalTrafficTest.txt",
+      "anomalousTrafficTest.txt"
+    ],
+    "data_directory": "/kaggle/input/datasets/wicaksonohanifs/network-traffic-data",
+    "combine_then_split": true
+  },
+  "metrics": {
+    "accuracy": 0.9791376912378303,
+    "roc_auc": 0.9976635054414078,
+    "precision_normal": 0.9762471925406656,
+    "recall_normal": 0.9961111111111111,
+    "f1_normal": 0.9860791255628502,
+    "precision_anomalous": 0.988135593220339,
+    "recall_anomalous": 0.9303810093756234,
+    "f1_anomalous": 0.9583889859241755
+  },
+  "suggested_threshold": 0.22999999999999995,
+  "feature_importance_top15": [
+    {
+      "feature": "max_param_name_length",
+      "importance": 0.29033493995666504
+    },
+    {
+      "feature": "num_params",
+      "importance": 0.18677668273448944
+    },
+    {
+      "feature": "avg_param_name_length",
+      "importance": 0.1333594173192978
+    },
+    {
+      "feature": "path_length",
+      "importance": 0.07316168397665024
+    },
+    {
+      "feature": "uppercase_ratio",
+      "importance": 0.06819961965084076
+    },
+    {
+      "feature": "encoded_char_count",
+      "importance": 0.04879003018140793
+    },
+    {
+      "feature": "special_char_ratio",
+      "importance": 0.04039034992456436
+    },
+    {
+      "feature": "alpha_ratio",
+      "importance": 0.038658253848552704
+    },
+    {
+      "feature": "digit_ratio",
+      "importance": 0.01964724250137806
+    },
+    {
+      "feature": "url_length",
+      "importance": 0.017896505072712898
+    },
+    {
+      "feature": "url_entropy",
+      "importance": 0.017249787226319313
+    },
+    {
+      "feature": "num_headers",
+      "importance": 0.0131452064961195
+    },
+    {
+      "feature": "avg_param_value_length",
+      "importance": 0.0127136604860425
+    },
+    {
+      "feature": "std_param_value_length",
+      "importance": 0.011115903966128826
+    },
+    {
+      "feature": "sql_keyword_count",
+      "importance": 0.0059241605922579765
+    }
+  ]
+}
